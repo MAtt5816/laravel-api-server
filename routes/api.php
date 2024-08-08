@@ -20,6 +20,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GeneralController;
+use App\Http\Controllers\StudentController;
 
 /**
  * post authorizePost
@@ -27,49 +29,49 @@ use Illuminate\Support\Facades\Route;
  * Notes: Returns JWT token for further authorization.
  * Output-Formats: [text/plain]
  */
-Route::post('/authorize', 'GeneralController@authorizePost');
+Route::post('/authorize', [GeneralController::class, 'authorizePost']);
 /**
  * get helloGet
  * Summary: Returns \&quot;Hello World!\&quot; phrase
  * Notes: Returns \&quot;Hello World!\&quot; phrase.
  * Output-Formats: [text/plain]
  */
-Route::get('/hello', 'GeneralController@helloGet');
+Route::get('/hello', [GeneralController::class, 'helloGet']);
 /**
  * get studentGet
  * Summary: Find first n students
  * Notes: Find and return first n students ordered by its IDs.
  * Output-Formats: [application/json]
  */
-Route::get('/student', 'StudentController@studentGet');
+Route::get('/student', [StudentController::class, 'studentGet']);
 /**
  * post studentPost
  * Summary: Add a new students
  * Notes: Add a new students
  * Output-Formats: [application/json]
  */
-Route::post('/student', 'StudentController@studentPost');
+Route::post('/student', [StudentController::class, 'studentPost']);
 /**
  * delete studentStudentIdDelete
  * Summary: Delete student by ID
  * Notes: Delete student by given ID.
 
  */
-Route::delete('/student/{studentId}', 'StudentController@studentStudentIdDelete');
+Route::delete('/student/{studentId}', [StudentController::class, 'studentStudentIdDelete']);
 /**
  * patch studentStudentIdPatch
  * Summary: Update some fields of student
  * Notes: Update some fields of student by given student ID.
  * Output-Formats: [application/json]
  */
-Route::patch('/student/{studentId}', 'StudentController@studentStudentIdPatch');
+Route::patch('/student/{studentId}', [StudentController::class, 'studentStudentIdPatch']);
 /**
  * put studentStudentIdPut
  * Summary: Update student
  * Notes: Update student by given ID.
  * Output-Formats: [application/json]
  */
-Route::put('/student/{studentId}', 'StudentController@studentStudentIdPut');
+Route::put('/student/{studentId}', [StudentController::class, 'studentStudentIdPut']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
