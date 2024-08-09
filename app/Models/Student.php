@@ -2,12 +2,17 @@
 /**
  * Student
  */
-namespace app\Models;
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Scout\Searchable;
 
 /**
  * Student
  */
-class Student {
+class Student extends Model {
+    use Searchable;
 
     /** @var int $id */
     public $id = 0;
@@ -45,10 +50,19 @@ class Student {
     /** @var string $nat nationality short code*/
     public $nat = "";
 
-    /** @var \app\Models\Location $location */
-    public $location;
+    /**
+     * @return HasOne
+     */
+    public function location()
+    {
+            return $this->hasOne(Location::class);
+    }
 
-    /** @var \app\Models\Picture $picture */
-    public $picture;
-
+    /**
+     * @return HasOne
+     */
+    public function picture()
+    {
+        return $this->hasOne(Picture::class);
+    }
 }

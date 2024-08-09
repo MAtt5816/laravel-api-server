@@ -20,6 +20,8 @@
 
 namespace App\Http\Controllers;
 
+use app\Models\ErrorMessage;
+use App\Models\Student;
 use Illuminate\Support\Facades\Request;
 
 class StudentController extends Controller
@@ -41,20 +43,15 @@ class StudentController extends Controller
      */
     public function studentGet()
     {
-        $input = Request::all();
-
-        //path params validation
-
-
-        //not path params validation
-        if ($input['results'] < 1) {
-            throw new \InvalidArgumentException('invalid value for $results when calling StudentController.studentGet, must be bigger than or equal to 1.');
+        if (!isset($_GET['results']) || !is_numeric($_GET['results']) || $_GET['results'] < 1) {
+            return response(status: 400);
         }
-        $results = $input['results'];
 
+        $students = Student::with(['location', 'picture'])->take($_GET['results'])->get();
 
-        return response('How about implementing studentGet as a get method ?');
+        return response($students, 200);
     }
+
     /**
      * Operation studentPost
      *
@@ -79,6 +76,7 @@ class StudentController extends Controller
 
         return response('How about implementing studentPost as a post method ?');
     }
+
     /**
      * Operation studentStudentIdDelete
      *
@@ -99,6 +97,7 @@ class StudentController extends Controller
 
         return response('How about implementing studentStudentIdDelete as a delete method ?');
     }
+
     /**
      * Operation studentStudentIdPatch
      *
@@ -119,6 +118,7 @@ class StudentController extends Controller
 
         return response('How about implementing studentStudentIdPatch as a patch method ?');
     }
+
     /**
      * Operation studentStudentIdPut
      *

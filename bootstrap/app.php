@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'auth.basic.jwtGenerate' => \App\Http\Middleware\GenerateJwtAfterBasicAuth::class,
+            'auth.jwt' => \App\Http\Middleware\VerifyTokenJwtAuth::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -2,12 +2,16 @@
 /**
  * Location
  */
-namespace app\Models;
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 /**
  * Location
  */
-class Location {
+class Location extends Model {
+    use Searchable;
 
     /** @var int $streetNumber */
     public $streetNumber = 0;

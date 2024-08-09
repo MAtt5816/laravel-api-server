@@ -20,7 +20,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class GeneralController extends Controller
 {
@@ -41,15 +43,14 @@ class GeneralController extends Controller
      */
     public function authorizePost()
     {
-        $input = Request::all();
-
-        //path params validation
-
-
-        //not path params validation
-
-        return response('How about implementing authorizePost as a post method ?');
+        if ($user = Auth::user()) {
+            $token = JWTAuth::fromUser($user);
+            return response($token, 200);
+        } else {
+            return response(status: 401);
+        }
     }
+
     /**
      * Operation helloGet
      *
@@ -60,13 +61,6 @@ class GeneralController extends Controller
      */
     public function helloGet()
     {
-        $input = Request::all();
-
-        //path params validation
-
-
-        //not path params validation
-
-        return response('How about implementing helloGet as a get method ?');
+        return response("Hello World!", 200);
     }
 }

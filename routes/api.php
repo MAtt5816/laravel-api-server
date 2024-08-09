@@ -29,7 +29,7 @@ use App\Http\Controllers\StudentController;
  * Notes: Returns JWT token for further authorization.
  * Output-Formats: [text/plain]
  */
-Route::post('/authorize', [GeneralController::class, 'authorizePost']);
+Route::post('/authorize', [GeneralController::class, 'authorizePost'])->middleware('auth.basic.jwtGenerate');
 /**
  * get helloGet
  * Summary: Returns \&quot;Hello World!\&quot; phrase
@@ -43,7 +43,7 @@ Route::get('/hello', [GeneralController::class, 'helloGet']);
  * Notes: Find and return first n students ordered by its IDs.
  * Output-Formats: [application/json]
  */
-Route::get('/student', [StudentController::class, 'studentGet']);
+Route::get('/student', [StudentController::class, 'studentGet'])->middleware('auth.jwt');
 /**
  * post studentPost
  * Summary: Add a new students
