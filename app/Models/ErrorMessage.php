@@ -2,7 +2,7 @@
 /**
  * ErrorMessage
  */
-namespace app\Models;
+namespace App\Models;
 
 /**
  * ErrorMessage

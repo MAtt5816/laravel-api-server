@@ -5,21 +5,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
 
 /**
  * Picture
  */
 class Picture extends Model {
-    use Searchable;
+    protected $primaryKey = 'student_id';
+    public $incrementing = false;
+    public $timestamps = false;
 
-    /** @var string $large */
-    public $large = "";
+    protected $fillable = [
+        'student_id',
+        'large',
+        'medium',
+        'thumbnail',
+    ];
 
-    /** @var string $medium */
-    public $medium = "";
-
-    /** @var string $thumbnail */
-    public $thumbnail = "";
-
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 }

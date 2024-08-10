@@ -5,33 +5,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
 
 /**
  * Location
  */
 class Location extends Model {
-    use Searchable;
+    protected $primaryKey = 'student_id';
+    public $incrementing = false;
+    public $timestamps = false;
 
-    /** @var int $streetNumber */
-    public $streetNumber = 0;
+    protected $fillable = [
+        'student_id',
+        'street_number',
+        'street_name',
+        'city',
+        'state',
+        'country',
+        'postcode',
+        'timezone',
+    ];
 
-    /** @var string $streetName */
-    public $streetName = "";
-
-    /** @var string $city */
-    public $city = "";
-
-    /** @var string $state */
-    public $state = "";
-
-    /** @var string $country */
-    public $country = "";
-
-    /** @var string $postcode */
-    public $postcode = "";
-
-    /** @var string $timezone */
-    public $timezone = "";
-
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 }

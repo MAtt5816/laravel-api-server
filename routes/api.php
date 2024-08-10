@@ -37,42 +37,44 @@ Route::post('/authorize', [GeneralController::class, 'authorizePost'])->middlewa
  * Output-Formats: [text/plain]
  */
 Route::get('/hello', [GeneralController::class, 'helloGet']);
-/**
- * get studentGet
- * Summary: Find first n students
- * Notes: Find and return first n students ordered by its IDs.
- * Output-Formats: [application/json]
- */
-Route::get('/student', [StudentController::class, 'studentGet'])->middleware('auth.jwt');
-/**
- * post studentPost
- * Summary: Add a new students
- * Notes: Add a new students
- * Output-Formats: [application/json]
- */
-Route::post('/student', [StudentController::class, 'studentPost']);
-/**
- * delete studentStudentIdDelete
- * Summary: Delete student by ID
- * Notes: Delete student by given ID.
 
- */
-Route::delete('/student/{studentId}', [StudentController::class, 'studentStudentIdDelete']);
-/**
- * patch studentStudentIdPatch
- * Summary: Update some fields of student
- * Notes: Update some fields of student by given student ID.
- * Output-Formats: [application/json]
- */
-Route::patch('/student/{studentId}', [StudentController::class, 'studentStudentIdPatch']);
-/**
- * put studentStudentIdPut
- * Summary: Update student
- * Notes: Update student by given ID.
- * Output-Formats: [application/json]
- */
-Route::put('/student/{studentId}', [StudentController::class, 'studentStudentIdPut']);
+Route::group(['middleware' => 'auth.jwt'], function (){
+    /**
+     * get studentGet
+     * Summary: Find first n students
+     * Notes: Find and return first n students ordered by its IDs.
+     * Output-Formats: [application/json]
+     */
+    Route::get('/student', [StudentController::class, 'studentGet']);
+    /**
+     * post studentPost
+     * Summary: Add a new students
+     * Notes: Add a new students
+     * Output-Formats: [application/json]
+     */
+    Route::post('/student', [StudentController::class, 'studentPost']);
+    /**
+     * delete studentStudentIdDelete
+     * Summary: Delete student by ID
+     * Notes: Delete student by given ID.
+     */
+    Route::delete('/student/{studentId}', [StudentController::class, 'studentStudentIdDelete']);
+    /**
+     * patch studentStudentIdPatch
+     * Summary: Update some fields of student
+     * Notes: Update some fields of student by given student ID.
+     * Output-Formats: [application/json]
+     */
+    Route::patch('/student/{studentId}', [StudentController::class, 'studentStudentIdPatch']);
+    /**
+     * put studentStudentIdPut
+     * Summary: Update student
+     * Notes: Update student by given ID.
+     * Output-Formats: [application/json]
+     */
+    Route::put('/student/{studentId}', [StudentController::class, 'studentStudentIdPut']);
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+    Route::middleware('auth:api')->get('/user', function (Request $request) {
+        return $request->user();
+    });
 });

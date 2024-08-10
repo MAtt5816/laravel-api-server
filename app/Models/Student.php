@@ -6,49 +6,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Laravel\Scout\Searchable;
 
 /**
  * Student
  */
 class Student extends Model {
-    use Searchable;
+    public $timestamps = false;
 
-    /** @var int $id */
-    public $id = 0;
+    protected $fillable = [
+        'gender',
+        'title',
+        'first_name',
+        'last_name',
+        'email',
+        'dob',
+        'registered',
+        'phone',
+        'id_name',
+        'id_value',
+        'nat'
+    ];
 
-    /** @var string $gender */
-    public $gender = "";
-
-    /** @var string $title */
-    public $title = "";
-
-    /** @var string $firstName */
-    public $firstName = "";
-
-    /** @var string $lastName */
-    public $lastName = "";
-
-    /** @var string $email */
-    public $email = "";
-
-    /** @var \DateTime $dob date of birth*/
-    public $dob;
-
-    /** @var \DateTime $registered date of registration*/
-    public $registered;
-
-    /** @var string $phone */
-    public $phone = "";
-
-    /** @var string $idName national identification number type*/
-    public $idName = "";
-
-    /** @var string $idValue national identification number value*/
-    public $idValue = "";
-
-    /** @var string $nat nationality short code*/
-    public $nat = "";
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'dob' => 'date',
+        'registered' => 'datetime',
+    ];
 
     /**
      * @return HasOne
@@ -64,5 +51,15 @@ class Student extends Model {
     public function picture()
     {
         return $this->hasOne(Picture::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($student) {
+            $student->location()->delete();
+            $student->picture()->delete();
+        });
     }
 }

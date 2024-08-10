@@ -20,9 +20,14 @@
 
 namespace App\Http\Controllers;
 
-use app\Models\ErrorMessage;
+use App\Models\ErrorMessage;
+use App\Models\Location;
+use App\Models\Picture;
 use App\Models\Student;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -62,19 +67,67 @@ class StudentController extends Controller
      */
     public function studentPost()
     {
-        $input = Request::all();
-
-        //path params validation
-
-
-        //not path params validation
-        if (!isset($input['student'])) {
-            throw new \InvalidArgumentException('Missing the required parameter $student when calling studentPost');
+        $data = json_decode(Request::getContent(), true);
+        if ($data === null) {
+            return response(status: 400);
         }
-        $student = $input['student'];
 
+        $validator = $this->validateStudent($data, true, true);
 
-        return response('How about implementing studentPost as a post method ?');
+        if($validator->fails()){
+            $errors = array();
+
+            foreach ($validator->errors()->toArray() as $key => $value) {
+                foreach ($value as $message) {
+                    $error = new ErrorMessage();
+                    $error->field = $key;
+                    $error->message = $message;
+
+                    $errors[] = $error;
+                }
+            }
+
+            return response($errors, 422);
+        }
+
+        db::beginTransaction();
+
+        $students = array();
+
+        foreach ($data as $studentData) {
+            $student = new Student();
+            $this->fillStudent($studentData, $student);
+            $student->registered = Carbon::now();
+
+            if ($student->save()) {
+                $id = $student->id;
+
+                $location = new Location();
+                $this->fillStudentLocation($id, $location, $studentData['location']);
+                $isSuccess = $location->save();
+
+                $picture = new Picture();
+                $this->fillStudentPicture($id, $picture, $studentData['picture']);
+                $isSuccess2 = $picture->save();
+
+                if (!($isSuccess && $isSuccess2)) {
+                    db::rollBack();
+                    return response(status: 400);
+                }
+                else {
+                    $student->location = $location;
+                    $student->picture = $picture;
+                    $students[] = $student;
+                }
+            }
+            else {
+                db::rollBack();
+                return response(status: 400);
+            }
+        }
+
+        db::commit();
+        return response($students, 201);
     }
 
     /**
@@ -88,14 +141,14 @@ class StudentController extends Controller
      */
     public function studentStudentIdDelete($studentId)
     {
-        $input = Request::all();
+        $student = Student::find($studentId);
 
-        //path params validation
+        if ($student === null) {
+            return response(status: 404);
+        }
 
-
-        //not path params validation
-
-        return response('How about implementing studentStudentIdDelete as a delete method ?');
+        Student::destroy($studentId);
+        return response(status: 204);
     }
 
     /**
@@ -109,14 +162,65 @@ class StudentController extends Controller
      */
     public function studentStudentIdPatch($studentId)
     {
-        $input = Request::all();
+        $student = Student::find($studentId);
 
-        //path params validation
+        if ($student === null) {
+            return response(status: 404);
+        }
 
+        $studentData = json_decode(Request::getContent(), true);
+        if ($studentData === null) {
+            return response(status: 400);
+        }
 
-        //not path params validation
+        $validator = $this->validateStudent($studentData, false, false);
+        if($validator->fails()){
+            $errors = array();
 
-        return response('How about implementing studentStudentIdPatch as a patch method ?');
+            foreach ($validator->errors()->toArray() as $key => $value) {
+                foreach ($value as $message) {
+                    $error = new ErrorMessage();
+                    $error->field = $key;
+                    $error->message = $message;
+
+                    $errors[] = $error;
+                }
+            }
+
+            return response($errors, 422);
+        }
+
+        db::beginTransaction();
+
+        $this->fillStudent($studentData, $student);
+
+        if ($student->save()) {
+            $id = $student->id;
+
+            $location = $student->location()->first();
+            $this->fillStudentLocation($id, $location, $studentData['location']);
+            $isSuccess = $location->save();
+
+            $picture = $student->picture()->first();
+            $this->fillStudentPicture($id, $picture, $studentData['picture']);
+            $isSuccess2 = $picture->save();
+
+            if (!($isSuccess && $isSuccess2)) {
+                db::rollBack();
+                return response(status: 400);
+            }
+            else {
+                $student->location = $location;
+                $student->picture = $picture;
+            }
+        }
+        else {
+            db::rollBack();
+            return response(status: 400);
+        }
+
+        db::commit();
+        return response($student, 200);
     }
 
     /**
@@ -130,13 +234,157 @@ class StudentController extends Controller
      */
     public function studentStudentIdPut($studentId)
     {
-        $input = Request::all();
+        $student = Student::find($studentId);
 
-        //path params validation
+        if ($student === null) {
+            return response(status: 404);
+        }
 
+        $studentData = json_decode(Request::getContent(), true);
+        if ($studentData === null) {
+            return response(status: 400);
+        }
 
-        //not path params validation
+        $validator = $this->validateStudent($studentData, false, true);
 
-        return response('How about implementing studentStudentIdPut as a put method ?');
+        if($validator->fails()){
+            $errors = array();
+
+            foreach ($validator->errors()->toArray() as $key => $value) {
+                foreach ($value as $message) {
+                    $error = new ErrorMessage();
+                    $error->field = $key;
+                    $error->message = $message;
+
+                    $errors[] = $error;
+                }
+            }
+
+            return response($errors, 422);
+        }
+
+        db::beginTransaction();
+
+        $this->fillStudent($studentData, $student);
+
+        if ($student->save()) {
+            $id = $student->id;
+
+            $location = $student->location()->first();
+            $this->fillStudentLocation($id, $location, $studentData['location']);
+            $isSuccess = $location->save();
+
+            $picture = $student->picture()->first();
+            $this->fillStudentPicture($id, $picture, $studentData['picture']);
+            $isSuccess2 = $picture->save();
+
+            if (!($isSuccess && $isSuccess2)) {
+                db::rollBack();
+                return response(status: 400);
+            }
+            else {
+                $student->location = $location;
+                $student->picture = $picture;
+            }
+        }
+        else {
+            db::rollBack();
+            return response(status: 400);
+        }
+
+        db::commit();
+        return response($student, 200);
+    }
+
+    /**
+     * @param mixed $data
+     * @return \Illuminate\Validation\Validator
+     */
+    protected function validateStudent(mixed $data, bool $isArrayInput, bool $allFieldsRequired): \Illuminate\Validation\Validator
+    {
+        $isRequired = $allFieldsRequired ? 'required' : 'nullable';
+        $isArray = $isArrayInput ? '*.' : '';
+
+        $validator = Validator::make($data, [
+            $isArray.'id' => 'integer|unique:students,id',
+            $isArray.'gender' => $isRequired.'|string|max:10',
+            $isArray.'title' => $isRequired.'|string|max:20',
+            $isArray.'first_name' => $isRequired.'|string|max:50',
+            $isArray.'last_name' => $isRequired.'|string|max:50',
+            $isArray.'email' => $isRequired.'|email|max:100',
+            $isArray.'dob' => $isRequired.'|date',
+            $isArray.'phone' => $isRequired.'|string|max:20',
+            $isArray.'id_name' => $isRequired.'|string|max:20',
+            $isArray.'id_value' => $isRequired.'|string|max:50',
+            $isArray.'nat' => $isRequired.'|string|max:10',
+
+            // Nested Location Fields
+            $isArray.'location.student_id' => 'integer|unique:locations,student_id',
+            $isArray.'location.street_number' => $isRequired.'|integer',
+            $isArray.'location.street_name' => $isRequired.'|string|max:100',
+            $isArray.'location.city' => $isRequired.'|string|max:100',
+            $isArray.'location.state' => $isRequired.'|string|max:100',
+            $isArray.'location.country' => $isRequired.'|string|max:100',
+            $isArray.'location.postcode' => $isRequired.'|string|max:20',
+            $isArray.'location.timezone' => $isRequired.'|string|max:10',
+
+            // Nested Picture Fields
+            $isArray.'picture.student_id' => 'integer|unique:pictures,student_id',
+            $isArray.'picture.large' => $isRequired.'|url|max:255',
+            $isArray.'picture.medium' => $isRequired.'|url|max:255',
+            $isArray.'picture.thumbnail' => $isRequired.'|url|max:255',
+        ]);
+        return $validator;
+    }
+
+    /**
+     * @param mixed $studentData
+     * @param Student $student
+     * @return void
+     */
+    protected function fillStudent(mixed $studentData, Student $student): void
+    {
+        $student->gender = $studentData['gender'] ?? $student->gender;
+        $student->title = $studentData['title'] ?? $student->title;
+        $student->first_name = $studentData['first_name'] ?? $student->first_name;
+        $student->last_name = $studentData['last_name'] ?? $student->last_name;
+        $student->email = $studentData['email'] ?? $student->email;
+        $student->dob = $studentData['dob'] ?? $student->dob;
+        $student->phone = $studentData['phone'] ?? $student->phone;
+        $student->id_name = $studentData['id_name'] ?? $student->id_name;
+        $student->id_value = $studentData['id_value'] ?? $student->id_value;
+        $student->nat = $studentData['nat'] ?? $student->nat;
+    }
+
+    /**
+     * @param mixed $id
+     * @param Location $location
+     * @param $location1
+     * @return void
+     */
+    protected function fillStudentLocation(mixed $id, Location $location, $location1): void
+    {
+        $location->student_id = $id;
+        $location->street_number = $location1['street_number'] ?? $location->street_number;
+        $location->street_name = $location1['street_name'] ?? $location->street_name;
+        $location->city = $location1['city'] ?? $location->city;
+        $location->state = $location1['state'] ?? $location->state;
+        $location->country = $location1['country'] ?? $location->country;
+        $location->postcode = $location1['postcode'] ?? $location->postcode;
+        $location->timezone = $location1['timezone'] ?? $location->timezone;
+    }
+
+    /**
+     * @param mixed $id
+     * @param Picture $picture
+     * @param $picture1
+     * @return void
+     */
+    protected function fillStudentPicture(mixed $id, Picture $picture, $picture1): void
+    {
+        $picture->student_id = $id;
+        $picture->large = $picture1['large'] ?? $picture->large;
+        $picture->medium = $picture1['medium'] ?? $picture->medium;
+        $picture->thumbnail = $picture1['thumbnail'] ?? $picture->thumbnail;
     }
 }
