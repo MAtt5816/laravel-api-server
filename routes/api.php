@@ -29,7 +29,7 @@ use App\Http\Controllers\StudentController;
  * Notes: Returns JWT token for further authorization.
  * Output-Formats: [text/plain]
  */
-Route::post('/authorize', [GeneralController::class, 'authorizePost'])->middleware('auth.basic.jwtGenerate');
+Route::post('/authorize', [GeneralController::class, 'authorizePost']);
 /**
  * get helloGet
  * Summary: Returns \&quot;Hello World!\&quot; phrase

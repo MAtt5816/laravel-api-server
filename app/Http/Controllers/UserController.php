@@ -13,7 +13,7 @@ class UserController extends Controller
      * @param string $salt
      * @param string $password
      */
-    public function basicAuthenticate(string $username, string $password)
+    public function authenticate(string $username, string $password)
     {
         $user = User::where('username', $username)->first();
         $salt = $user->salt ?? "";

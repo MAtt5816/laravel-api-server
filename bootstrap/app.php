@@ -13,7 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'auth.basic.jwtGenerate' => \App\Http\Middleware\GenerateJwtAfterBasicAuth::class,
             'auth.jwt' => \App\Http\Middleware\VerifyTokenJwtAuth::class,
         ]);
     })

@@ -43,6 +43,17 @@ class GeneralController extends Controller
      */
     public function authorizePost()
     {
+        $authData = json_decode(Request::getContent());
+        if ($authData === null) {
+            return response(status: 401);
+        }
+
+        $username = $authData->username ?? "";
+        $password = $authData->passphrase ?? "";
+
+        $userController = new UserController();
+        $userController->authenticate($username, $password);
+
         if ($user = Auth::user()) {
             $token = JWTAuth::fromUser($user);
             return response($token, 200);
