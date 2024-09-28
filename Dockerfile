@@ -1,5 +1,9 @@
 # Set the base image to PHP 8.2 with Apache
 FROM php:8.2-apache
+COPY wait-for-db-start.sh /usr/local/bin/wait-for-db-start.sh
+RUN chmod +x /usr/local/bin/wait-for-db-start.sh
+
+RUN apt update && apt install -y mariadb-client
 
 # Set working directory inside the container
 WORKDIR /var/www/html
@@ -52,4 +56,4 @@ RUN npm install && npm run build
 EXPOSE 80
 
 # Start Apache
-CMD ["apache2-foreground"]
+CMD ["sh","-c","wait-for-db-start.sh -- apache2-foreground"]
